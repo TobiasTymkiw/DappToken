@@ -1,0 +1,511 @@
+[
+	{
+		"elements": [
+			{
+				"type": "function",
+				"name": "withdraw",
+				"source_mapping": {
+					"start": 515,
+					"length": 490,
+					"filename_relative": "contracts/Lock.sol",
+					"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+					"filename_short": "contracts/Lock.sol",
+					"is_dependency": false,
+					"lines": [
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33
+					],
+					"starting_column": 5,
+					"ending_column": 6,
+					"_ext_source_hash": "5cfbd05b75bf910b1d9edfdb61fa22e5"
+				},
+				"type_specific_fields": {
+					"parent": {
+						"type": "contract",
+						"name": "Lock",
+						"source_mapping": {
+							"start": 141,
+							"length": 866,
+							"filename_relative": "contracts/Lock.sol",
+							"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+							"filename_short": "contracts/Lock.sol",
+							"is_dependency": false,
+							"lines": [
+								7,
+								8,
+								9,
+								10,
+								11,
+								12,
+								13,
+								14,
+								15,
+								16,
+								17,
+								18,
+								19,
+								20,
+								21,
+								22,
+								23,
+								24,
+								25,
+								26,
+								27,
+								28,
+								29,
+								30,
+								31,
+								32,
+								33,
+								34
+							],
+							"starting_column": 1,
+							"ending_column": 2
+						}
+					},
+					"signature": "withdraw()"
+				}
+			},
+			{
+				"type": "node",
+				"name": "require(bool,string)(block.timestamp >= unlockTime,You can't withdraw yet)",
+				"source_mapping": {
+					"start": 758,
+					"length": 64,
+					"filename_relative": "contracts/Lock.sol",
+					"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+					"filename_short": "contracts/Lock.sol",
+					"is_dependency": false,
+					"lines": [
+						27
+					],
+					"starting_column": 9,
+					"ending_column": 73,
+					"_ext_source_hash": "37a64f442262c4e0506bdb3bab9a29cf"
+				},
+				"type_specific_fields": {
+					"parent": {
+						"type": "function",
+						"name": "withdraw",
+						"source_mapping": {
+							"start": 515,
+							"length": 490,
+							"filename_relative": "contracts/Lock.sol",
+							"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+							"filename_short": "contracts/Lock.sol",
+							"is_dependency": false,
+							"lines": [
+								23,
+								24,
+								25,
+								26,
+								27,
+								28,
+								29,
+								30,
+								31,
+								32,
+								33
+							],
+							"starting_column": 5,
+							"ending_column": 6
+						},
+						"type_specific_fields": {
+							"parent": {
+								"type": "contract",
+								"name": "Lock",
+								"source_mapping": {
+									"start": 141,
+									"length": 866,
+									"filename_relative": "contracts/Lock.sol",
+									"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+									"filename_short": "contracts/Lock.sol",
+									"is_dependency": false,
+									"lines": [
+										7,
+										8,
+										9,
+										10,
+										11,
+										12,
+										13,
+										14,
+										15,
+										16,
+										17,
+										18,
+										19,
+										20,
+										21,
+										22,
+										23,
+										24,
+										25,
+										26,
+										27,
+										28,
+										29,
+										30,
+										31,
+										32,
+										33,
+										34
+									],
+									"starting_column": 1,
+									"ending_column": 2
+								}
+							},
+							"signature": "withdraw()"
+						}
+					}
+				}
+			}
+		],
+		"description": "Lock.withdraw() (contracts/Lock.sol#23-33) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool,string)(block.timestamp >= unlockTime,You can't withdraw yet) (contracts/Lock.sol#27)\n",
+		"markdown": "[Lock.withdraw()](contracts/Lock.sol#L23-L33) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [require(bool,string)(block.timestamp >= unlockTime,You can't withdraw yet)](contracts/Lock.sol#L27)\n",
+		"first_markdown_element": "contracts/Lock.sol#L23-L33",
+		"id": "15e1a76f32b9f88dbeb7c48bd7eb1b6ba1ad2e2e8067747173f93200418be03a",
+		"check": "timestamp",
+		"impact": "Low",
+		"confidence": "Medium"
+	},
+	{
+		"elements": [
+			{
+				"type": "function",
+				"name": "constructor",
+				"source_mapping": {
+					"start": 271,
+					"length": 238,
+					"filename_relative": "contracts/Lock.sol",
+					"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+					"filename_short": "contracts/Lock.sol",
+					"is_dependency": false,
+					"lines": [
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21
+					],
+					"starting_column": 5,
+					"ending_column": 6,
+					"_ext_source_hash": "3cf4e7f0a2c6ec0ea1921633520eed4c"
+				},
+				"type_specific_fields": {
+					"parent": {
+						"type": "contract",
+						"name": "Lock",
+						"source_mapping": {
+							"start": 141,
+							"length": 866,
+							"filename_relative": "contracts/Lock.sol",
+							"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+							"filename_short": "contracts/Lock.sol",
+							"is_dependency": false,
+							"lines": [
+								7,
+								8,
+								9,
+								10,
+								11,
+								12,
+								13,
+								14,
+								15,
+								16,
+								17,
+								18,
+								19,
+								20,
+								21,
+								22,
+								23,
+								24,
+								25,
+								26,
+								27,
+								28,
+								29,
+								30,
+								31,
+								32,
+								33,
+								34
+							],
+							"starting_column": 1,
+							"ending_column": 2
+						}
+					},
+					"signature": "constructor(uint256)"
+				}
+			},
+			{
+				"type": "node",
+				"name": "require(bool,string)(block.timestamp < _unlockTime,Unlock time should be in the future)",
+				"source_mapping": {
+					"start": 319,
+					"length": 111,
+					"filename_relative": "contracts/Lock.sol",
+					"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+					"filename_short": "contracts/Lock.sol",
+					"is_dependency": false,
+					"lines": [
+						14,
+						15,
+						16,
+						17
+					],
+					"starting_column": 9,
+					"ending_column": 10,
+					"_ext_source_hash": "4c0f51bb60dd29de3375d9b45463de52"
+				},
+				"type_specific_fields": {
+					"parent": {
+						"type": "function",
+						"name": "constructor",
+						"source_mapping": {
+							"start": 271,
+							"length": 238,
+							"filename_relative": "contracts/Lock.sol",
+							"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+							"filename_short": "contracts/Lock.sol",
+							"is_dependency": false,
+							"lines": [
+								13,
+								14,
+								15,
+								16,
+								17,
+								18,
+								19,
+								20,
+								21
+							],
+							"starting_column": 5,
+							"ending_column": 6
+						},
+						"type_specific_fields": {
+							"parent": {
+								"type": "contract",
+								"name": "Lock",
+								"source_mapping": {
+									"start": 141,
+									"length": 866,
+									"filename_relative": "contracts/Lock.sol",
+									"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+									"filename_short": "contracts/Lock.sol",
+									"is_dependency": false,
+									"lines": [
+										7,
+										8,
+										9,
+										10,
+										11,
+										12,
+										13,
+										14,
+										15,
+										16,
+										17,
+										18,
+										19,
+										20,
+										21,
+										22,
+										23,
+										24,
+										25,
+										26,
+										27,
+										28,
+										29,
+										30,
+										31,
+										32,
+										33,
+										34
+									],
+									"starting_column": 1,
+									"ending_column": 2
+								}
+							},
+							"signature": "constructor(uint256)"
+						}
+					}
+				}
+			}
+		],
+		"description": "Lock.constructor(uint256) (contracts/Lock.sol#13-21) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- require(bool,string)(block.timestamp < _unlockTime,Unlock time should be in the future) (contracts/Lock.sol#14-17)\n",
+		"markdown": "[Lock.constructor(uint256)](contracts/Lock.sol#L13-L21) uses timestamp for comparisons\n\tDangerous comparisons:\n\t- [require(bool,string)(block.timestamp < _unlockTime,Unlock time should be in the future)](contracts/Lock.sol#L14-L17)\n",
+		"first_markdown_element": "contracts/Lock.sol#L13-L21",
+		"id": "cc2b7e93ac8e9b3895e362cc376033162122c1b896b79ef0cab2363d70b4a860",
+		"check": "timestamp",
+		"impact": "Low",
+		"confidence": "Medium"
+	},
+	{
+		"elements": [
+			{
+				"type": "variable",
+				"name": "unlockTime",
+				"source_mapping": {
+					"start": 161,
+					"length": 22,
+					"filename_relative": "contracts/Lock.sol",
+					"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+					"filename_short": "contracts/Lock.sol",
+					"is_dependency": false,
+					"lines": [
+						8
+					],
+					"starting_column": 5,
+					"ending_column": 27,
+					"_ext_source_hash": "a6298e451d703055f886331c0f02116c"
+				},
+				"type_specific_fields": {
+					"parent": {
+						"type": "contract",
+						"name": "Lock",
+						"source_mapping": {
+							"start": 141,
+							"length": 866,
+							"filename_relative": "contracts/Lock.sol",
+							"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+							"filename_short": "contracts/Lock.sol",
+							"is_dependency": false,
+							"lines": [
+								7,
+								8,
+								9,
+								10,
+								11,
+								12,
+								13,
+								14,
+								15,
+								16,
+								17,
+								18,
+								19,
+								20,
+								21,
+								22,
+								23,
+								24,
+								25,
+								26,
+								27,
+								28,
+								29,
+								30,
+								31,
+								32,
+								33,
+								34
+							],
+							"starting_column": 1,
+							"ending_column": 2
+						}
+					}
+				}
+			}
+		],
+		"description": "Lock.unlockTime (contracts/Lock.sol#8) should be immutable \n",
+		"markdown": "[Lock.unlockTime](contracts/Lock.sol#L8) should be immutable \n",
+		"first_markdown_element": "contracts/Lock.sol#L8",
+		"id": "425e273ea9ef371e34ad34ca2faaa3d255b1b5354c7a50319bdc5772ee617fc0",
+		"check": "immutable-states",
+		"impact": "Optimization",
+		"confidence": "High"
+	},
+	{
+		"elements": [
+			{
+				"type": "variable",
+				"name": "owner",
+				"source_mapping": {
+					"start": 189,
+					"length": 28,
+					"filename_relative": "contracts/Lock.sol",
+					"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+					"filename_short": "contracts/Lock.sol",
+					"is_dependency": false,
+					"lines": [
+						9
+					],
+					"starting_column": 5,
+					"ending_column": 33,
+					"_ext_source_hash": "376bd6d608c3bae0890ca8ef02388d07"
+				},
+				"type_specific_fields": {
+					"parent": {
+						"type": "contract",
+						"name": "Lock",
+						"source_mapping": {
+							"start": 141,
+							"length": 866,
+							"filename_relative": "contracts/Lock.sol",
+							"filename_absolute": "/run/media/tobias/Education/ethkipu_henry/Proyectos-ETH-KIPU/DappToken/contracts/Lock.sol",
+							"filename_short": "contracts/Lock.sol",
+							"is_dependency": false,
+							"lines": [
+								7,
+								8,
+								9,
+								10,
+								11,
+								12,
+								13,
+								14,
+								15,
+								16,
+								17,
+								18,
+								19,
+								20,
+								21,
+								22,
+								23,
+								24,
+								25,
+								26,
+								27,
+								28,
+								29,
+								30,
+								31,
+								32,
+								33,
+								34
+							],
+							"starting_column": 1,
+							"ending_column": 2
+						}
+					}
+				}
+			}
+		],
+		"description": "Lock.owner (contracts/Lock.sol#9) should be immutable \n",
+		"markdown": "[Lock.owner](contracts/Lock.sol#L9) should be immutable \n",
+		"first_markdown_element": "contracts/Lock.sol#L9",
+		"id": "d63681d9d4c37738400555948047c67e22b0d15704f0671b96349c25c7e4fe81",
+		"check": "immutable-states",
+		"impact": "Optimization",
+		"confidence": "High"
+	}
+]
