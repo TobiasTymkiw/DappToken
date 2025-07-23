@@ -20,6 +20,28 @@ contract TokenFarm {
     uint256 public constant REWARD_PER_BLOCK = 1e18; // Recompensa por bloque (total para todos los usuarios)
     uint256 public totalStakingBalance; // Total de tokens en staking
 
+    // Eventos
+    // Agregar eventos para Deposit, Withdraw, RewardsClaimed y RewardsDistributed.
+    event Deposit(address indexed user, uint256 amount);
+    event Withdraw(address indexed user, uint256 amount);
+    event RewardsClaimed(address indexed user, uint256 amount);
+    event RewardsDistributed(uint256 totalRewards);
+
+    //Bonus 1: Modifiers.
+    //Modifier OnlyOwner: Verifica que la función sea llamada por el owner del contrato.
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner can call this function");
+        _;
+    }
+    //Modifier isStaking: Verifica que el usuario esté actualmente en staking.
+    modifier isStaking() {
+        require(
+            stakersInfo[msg.sender].isStaking,
+            "You are not currently staking"
+        );
+        _;
+    }
+    //Bonus 2: Estructura para almacenar la informacion de los usuarios en staking.
     struct StructUser {
         uint256 stakingBalance;
         uint256 checkpoint;
@@ -29,13 +51,6 @@ contract TokenFarm {
     }
     address[] public stakers;
     mapping(address => StructUser) public stakersInfo;
-
-    // Eventos
-    // Agregar eventos para Deposit, Withdraw, RewardsClaimed y RewardsDistributed.
-    event Deposit(address indexed user, uint256 amount);
-    event Withdraw(address indexed user, uint256 amount);
-    event RewardsClaimed(address indexed user, uint256 amount);
-    event RewardsDistributed(uint256 totalRewards);
 
     // Constructor
     constructor(DappToken _dappToken, LPToken _lpToken) {
@@ -84,12 +99,10 @@ contract TokenFarm {
     /**
      * @notice Retira todos los tokens LP en staking.
      */
-    function withdraw() external {
+    function withdraw() external isStaking{
         StructUser storage user = stakersInfo[msg.sender];
         // Obtener el balance de staking del usuario.
         uint256 balance = user.stakingBalance;
-        // Verificar que el usuario está haciendo staking (isStaking == true).
-        require(user.isStaking, "You are not staking");
         // Verificar que el balance de staking sea mayor a 0.
         require(balance > 0, "No balance to withdraw");
 
@@ -132,9 +145,7 @@ contract TokenFarm {
     /**
      * @notice Distribuye recompensas a todos los usuarios en staking.
      */
-    function distributeRewardsAll() external {
-        // Verificar que la llamada sea realizada por el owner.
-        require(msg.sender == owner, "Only owner can distribute rewards");
+    function distributeRewardsAll() external onlyOwner {
         // Iterar sobre todos los usuarios en staking almacenados en el array stakers.
         for (uint256 i = 0; i < stakers.length; i++) {
             address beneficiary = stakers[i];
