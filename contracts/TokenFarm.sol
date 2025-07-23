@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.18;
+pragma solidity ^0.8.20;
 
 import "./DappToken.sol";
 import "./LPToken.sol";
@@ -20,12 +20,15 @@ contract TokenFarm {
     uint256 public constant REWARD_PER_BLOCK = 1e18; // Recompensa por bloque (total para todos los usuarios)
     uint256 public totalStakingBalance; // Total de tokens en staking
 
+    struct StructUser {
+        uint256 stakingBalance;
+        uint256 checkpoint;
+        uint256 pendingRewards;
+        bool hasStaked;
+        bool isStaking;
+    }
     address[] public stakers;
-    mapping(address => uint256) public stakingBalance;
-    mapping(address => uint256) public checkpoints;
-    mapping(address => uint256) public pendingRewards;
-    mapping(address => bool) public hasStaked;
-    mapping(address => bool) public isStaking;
+    mapping(address => StructUser) public stakersInfo;
 
     // Eventos
     // Agregar eventos para Deposit, Withdraw, RewardsClaimed y RewardsDistributed.
@@ -33,6 +36,7 @@ contract TokenFarm {
     event Withdraw(address indexed user, uint256 amount);
     event RewardsClaimed(address indexed user, uint256 amount);
     event RewardsDistributed(uint256 totalRewards);
+
     // Constructor
     constructor(DappToken _dappToken, LPToken _lpToken) {
         // Configurar las instancias de los contratos de DappToken y LPToken.
@@ -44,74 +48,85 @@ contract TokenFarm {
 
     /**
      * @notice Deposita tokens LP para staking.
-     * @param _amount Cantidad de tokens LP a depositar.
+     * @param amount Cantidad de tokens LP a depositar.
      */
-    function deposit(uint256 _amount) external {
+    function deposit(uint256 amount) external {
         // Verificar que _amount sea mayor a 0.
-        require(_amount > 0, "Amount must be greater than 0");
-        // Transferir tokens LP del usuario a este contrato.
-        lpToken.transferFrom(msg.sender, address(this), _amount);
+        require(amount > 0, "Amount must be greater than 0");
+
         // Actualizar el balance de staking del usuario en stakingBalance.
-        stakingBalance[msg.sender] += _amount;
+        StructUser storage user = stakersInfo[msg.sender];
+        user.stakingBalance += amount;
         // Incrementar totalStakingBalance con _amount.
-        totalStakingBalance += _amount;
+        totalStakingBalance += amount;
         // Si el usuario nunca ha hecho staking antes, agregarlo al array stakers y marcar hasStaked como true.
-        if (!hasStaked[msg.sender]) {
+        if (!user.hasStaked) {
             stakers.push(msg.sender);
-            hasStaked[msg.sender] = true;
+            user.hasStaked = true;
         }
         // Actualizar isStaking del usuario a true.
-        isStaking[msg.sender] = true;
+        user.isStaking = true;
         // Si checkpoints del usuario está vacío, inicializarlo con el número de bloque actual.
-        if (checkpoints[msg.sender] == 0) {
-            checkpoints[msg.sender] = block.number;
+        if (user.checkpoint == 0) {
+            user.checkpoint = block.number;
         }
         // Llamar a distributeRewards para calcular y actualizar las recompensas pendientes.
         distributeRewards(msg.sender);
         // Emitir un evento de depósito.
-        emit Deposit(msg.sender, _amount);
+        emit Deposit(msg.sender, amount);
+        // Transferir tokens LP del usuario a este contrato.
+        require(
+            lpToken.transferFrom(msg.sender, address(this), amount),
+            "token transfer from sender failed"
+        );
     }
 
     /**
      * @notice Retira todos los tokens LP en staking.
      */
     function withdraw() external {
-        // Verificar que el usuario está haciendo staking (isStaking == true).
-        require(isStaking[msg.sender], "You are not staking");
+        StructUser storage user = stakersInfo[msg.sender];
         // Obtener el balance de staking del usuario.
+        uint256 balance = user.stakingBalance;
+        // Verificar que el usuario está haciendo staking (isStaking == true).
+        require(user.isStaking, "You are not staking");
         // Verificar que el balance de staking sea mayor a 0.
-        uint256 balance = stakingBalance[msg.sender];
-        require(balance > 0, "No staking balance to withdraw");
-        // Llamar a distributeRewards para calcular y actualizar las recompensas pendientes antes de restablecer el balance.
-        distributeRewards(msg.sender);
+        require(balance > 0, "No balance to withdraw");
+
+        //Actualiza los datos del usuario:
         // Restablecer stakingBalance del usuario a 0.
-        stakingBalance[msg.sender] = 0;
+        user.stakingBalance = 0;
         // Reducir totalStakingBalance en el balance que se está retirando.
         totalStakingBalance -= balance;
         // Actualizar isStaking del usuario a false.
-        isStaking[msg.sender] = false;
-        // Verificar que el contrato tiene suficientes tokens LP para transferir.
-        require(lpToken.balanceOf(address(this)) >= balance, "Insufficient LP tokens in contract");
-        // Transferir los tokens LP de vuelta al usuario.
-        lpToken.transfer(msg.sender, balance);
+        user.isStaking = false;
+        // Llamar a distributeRewards para calcular y actualizar las recompensas pendientes antes de restablecer el balance.
+        distributeRewards(msg.sender);
+
         // Emitir un evento de retiro.
         emit Withdraw(msg.sender, balance);
+        // Transferir los tokens LP de vuelta al usuario.
+        require(
+            lpToken.transfer(msg.sender, balance),
+            "token transfer to sender failed"
+        );
     }
 
     /**
      * @notice Reclama recompensas pendientes.
      */
     function claimRewards() external {
+        StructUser storage user = stakersInfo[msg.sender];
         // Obtener el monto de recompensas pendientes del usuario desde pendingRewards.
-        uint256 pendingAmount = pendingRewards[msg.sender];
+        uint256 pendingAmount = user.pendingRewards;
         // Verificar que el monto de recompensas pendientes sea mayor a 0.
         require(pendingAmount > 0, "No rewards to claim");
         // Restablecer las recompensas pendientes del usuario a 0.
-        pendingRewards[msg.sender] = 0;
-        // Llamar a la función de acuñación (mint) en el contrato DappToken para transferir las recompensas al usuario.
-        dappToken.mint(msg.sender, pendingAmount);
+        user.pendingRewards = 0;
         // Emitir un evento de reclamo de recompensas.
         emit RewardsClaimed(msg.sender, pendingAmount);
+        // Llamar a la función de acuñación (mint) en el contrato DappToken para transferir las recompensas al usuario.
+        dappToken.mint(msg.sender, pendingAmount);
     }
 
     /**
@@ -121,10 +136,13 @@ contract TokenFarm {
         // Verificar que la llamada sea realizada por el owner.
         require(msg.sender == owner, "Only owner can distribute rewards");
         // Iterar sobre todos los usuarios en staking almacenados en el array stakers.
-        // Para cada usuario, si están haciendo staking (isStaking == true), llamar a distributeRewards.
         for (uint256 i = 0; i < stakers.length; i++) {
             address beneficiary = stakers[i];
-            if (isStaking[beneficiary]) {
+            StructUser storage user = stakersInfo[beneficiary];
+            // Verificar que el usuario está haciendo staking.
+            if (user.isStaking) {
+                // Llamar a distributeRewards para calcular y actualizar las recompensas pendientes.
+                // Para cada usuario, si están haciendo staking (isStaking == true), llamar a distributeRewards.
                 distributeRewards(beneficiary);
             }
         }
@@ -174,20 +192,32 @@ contract TokenFarm {
      */
     function distributeRewards(address beneficiary) private {
         // Obtener el último checkpoint del usuario desde checkpoints.
-        uint256 lastCheckpoint = checkpoints[beneficiary];
+        StructUser storage user = stakersInfo[beneficiary];
+        uint256 lastCheckpoint = user.checkpoint;
         // Verificar que el número de bloque actual sea mayor al checkpoint y que totalStakingBalance sea mayor a 0.
-        require(block.number > lastCheckpoint, "No new blocks since last checkpoint");
-        require(totalStakingBalance > 0, "No tokens staked in total");
+        require(
+            block.number > lastCheckpoint,
+            "No new blocks since last checkpoint"
+        );
+        require(
+            totalStakingBalance > 0,
+            "No staking balance to distribute rewards"
+        );
         // Calcular la cantidad de bloques transcurridos desde el último checkpoint.
         uint256 blocksPassed = block.number - lastCheckpoint;
-        // Calcular la proporción del staking del usuario en relación al total staking (stakingBalance[beneficiary] / totalStakingBalance).
-        uint256 userStaking = stakingBalance[beneficiary];
-        uint256 share = userStaking / totalStakingBalance;
-        // Calcular las recompensas del usuario multiplicando la proporción por REWARD_PER_BLOCK y los bloques transcurridos.
-        uint256 reward = (REWARD_PER_BLOCK * blocksPassed);
-        // Actualizar las recompensas pendientes del usuario en pendingRewards.
-        pendingRewards[beneficiary] += (reward * share);
         // Actualizar el checkpoint del usuario al bloque actual.
-        checkpoints[beneficiary] = block.number;
+        user.checkpoint = block.number;
+        // Calcular la proporción del staking del usuario en relación al total staking (stakingBalance[beneficiary] / totalStakingBalance).
+        uint precision = 1e18; // Definir una precisión para evitar problemas de redondeo.
+        // Calcular las recompensas del usuario multiplicando la proporción por REWARD_PER_BLOCK y los bloques transcurridos.
+        //rewardA = 1e18 * 10 * 0.25 = 2.5e18 (2.5 tokens).
+        uint256 reward = (REWARD_PER_BLOCK *
+            blocksPassed *
+            user.stakingBalance *
+            precision) /
+            totalStakingBalance /
+            precision;
+        // Actualizar las recompensas pendientes del usuario en pendingRewards.
+        user.pendingRewards += reward;
     }
 }
