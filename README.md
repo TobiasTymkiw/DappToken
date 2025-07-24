@@ -8,7 +8,8 @@
 
 1. En la terminal: npm install --save-dev hardhat
 2. En la terminal: npx hardhat compile
-3. En la terminal: npx hardhat ignition deploy ignition/modules/TokenFarmModule.ts --network localhost
+3. En una segunda terminal: npx hardhat node
+4. En la terminal: npx hardhat ignition deploy ignition/modules/TokenFarmModule.ts --network localhost
 
 ### Tests con los que cuenta el proyecto:
 
