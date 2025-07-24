@@ -181,7 +181,7 @@ describe("TokenFarm", function () {
         stakerInfo[2] // The amount of DappTokens claimed
       );
   });
-
+  //Bonus 4: Rango minimo y maximo de recompensa por bloque.
   it("should allow owner to update rewardPerBlock within range", async () => {
   const { tokenFarm, owner } = await loadFixture(deployDappTokenFarmFixture);
 

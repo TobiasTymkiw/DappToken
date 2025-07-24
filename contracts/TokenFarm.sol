@@ -29,6 +29,7 @@ contract TokenFarm {
     event Withdraw(address indexed user, uint256 amount);
     event RewardsClaimed(address indexed user, uint256 amount);
     event RewardsDistributed(string message);
+    event RewardPerBlockUpdated(uint256 oldReward, uint256 newReward);
 
     //Bonus 1: Modifiers.
     //Modifier OnlyOwner: Verifica que la función sea llamada por el owner del contrato.
@@ -247,7 +248,9 @@ contract TokenFarm {
     function setRewardPerBlock(uint256 _newReward) external onlyOwner {
         require(_newReward >= MIN_REWARD_PER_BLOCK, "Below minimum reward");
         require(_newReward <= MAX_REWARD_PER_BLOCK, "Above maximum reward");
-
+        // Emitir un evento antes de actualizar la recompensa.
+        emit RewardPerBlockUpdated(REWARD_PER_BLOCK, _newReward);
+        // Actualizar REWARD_PER_BLOCK con el nuevo valor.
         REWARD_PER_BLOCK = _newReward;
     }
 }
