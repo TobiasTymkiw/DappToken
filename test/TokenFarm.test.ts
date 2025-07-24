@@ -1,6 +1,6 @@
 import { loadFixture } from "@nomicfoundation/hardhat-toolbox/network-helpers";
 import { expect } from "chai";
-import hre from "hardhat";
+import hre, { ethers } from "hardhat";
 import { time } from "@nomicfoundation/hardhat-network-helpers";
 
 describe("TokenFarm", function () {
@@ -181,4 +181,21 @@ describe("TokenFarm", function () {
         stakerInfo[2] // The amount of DappTokens claimed
       );
   });
+
+  it("should allow owner to update rewardPerBlock within range", async () => {
+  const { tokenFarm, owner } = await loadFixture(deployDappTokenFarmFixture);
+
+  const newReward = ethers.parseEther("2"); // 2 tokens por bloque
+  await tokenFarm.connect(owner).setRewardPerBlock(newReward);
+
+  expect(await tokenFarm.REWARD_PER_BLOCK()).to.equal(newReward);
+});
+
+it("should revert if rewardPerBlock is set below minimum", async () => {
+  const { tokenFarm, owner } = await loadFixture(deployDappTokenFarmFixture);
+
+  const tooLow = ethers.parseEther("0.05");
+  await expect(tokenFarm.connect(owner).setRewardPerBlock(tooLow)).to.be.revertedWith("Below minimum reward");
+});
+
 });

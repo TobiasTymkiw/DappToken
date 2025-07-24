@@ -17,7 +17,10 @@ contract TokenFarm {
     DappToken public dappToken;
     LPToken public lpToken;
 
-    uint256 public constant REWARD_PER_BLOCK = 1e18; // Recompensa por bloque (total para todos los usuarios)
+    uint256 public REWARD_PER_BLOCK; // Recompensa por bloque (total para todos los usuarios)
+    //Bonus 4: Rango minimo y maximo de recompensa por bloque.
+    uint256 public constant MIN_REWARD_PER_BLOCK = 1e17; // 0.1 token
+    uint256 public constant MAX_REWARD_PER_BLOCK = 5e18; // 5 tokens
     uint256 public totalStakingBalance; // Total de tokens en staking
 
     // Eventos
@@ -59,6 +62,8 @@ contract TokenFarm {
         lpToken = _lpToken;
         // Configurar al owner del contrato como el creador de este contrato.
         owner = msg.sender;
+        //Inicializar REWARD_PER_BLOCK con 1e18 (1 token total por bloque).
+        REWARD_PER_BLOCK = 1e18; // 1 token total por bloque
     }
 
     /**
@@ -233,5 +238,16 @@ contract TokenFarm {
             1e18; // Usar 1e18 para evitar problemas de precisión con enteros
         // Actualizar las recompensas pendientes del usuario en pendingRewards.
         user.pendingRewards += reward;
+    }
+
+    /**
+     * @notice Actualiza la recompensa por bloque.
+     * @param _newReward Nueva recompensa por bloque.
+     */
+    function setRewardPerBlock(uint256 _newReward) external onlyOwner {
+        require(_newReward >= MIN_REWARD_PER_BLOCK, "Below minimum reward");
+        require(_newReward <= MAX_REWARD_PER_BLOCK, "Above maximum reward");
+
+        REWARD_PER_BLOCK = _newReward;
     }
 }
