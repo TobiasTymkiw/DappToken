@@ -13,15 +13,20 @@ contract TokenFarm {
     // Variables de estado
     //
     string public constant name = "Proportional Token Farm";
-    address public owner;
-    DappToken public dappToken;
-    LPToken public lpToken;
+    address public immutable owner;
+    DappToken public immutable dappToken;
+    LPToken public immutable lpToken;
 
     uint256 public REWARD_PER_BLOCK; // Recompensa por bloque (total para todos los usuarios)
     //Bonus 4: Rango minimo y maximo de recompensa por bloque.
     uint256 public constant MIN_REWARD_PER_BLOCK = 1e17; // 0.1 token
     uint256 public constant MAX_REWARD_PER_BLOCK = 5e18; // 5 tokens
+    uint256 public constant precision = 1e18; // Para evitar problemas de precisión con enteros
     uint256 public totalStakingBalance; // Total de tokens en staking
+    //Bonus 5: Fees de withdraw.
+    // Comisión por retiro (en porcentaje, ej: 2 significa 2%)
+    uint256 public constant withdrawFeePercent = 2e16;
+    address public immutable feeReceiver;
 
     // Eventos
     // Agregar eventos para Deposit, Withdraw, RewardsClaimed y RewardsDistributed.
@@ -63,6 +68,8 @@ contract TokenFarm {
         lpToken = _lpToken;
         // Configurar al owner del contrato como el creador de este contrato.
         owner = msg.sender;
+        //feeReceiver address
+        feeReceiver = msg.sender; // El owner también recibe las comisiones de retiro
         //Inicializar REWARD_PER_BLOCK con 1e18 (1 token total por bloque).
         REWARD_PER_BLOCK = 1e18; // 1 token total por bloque
     }
@@ -145,10 +152,17 @@ contract TokenFarm {
         require(pendingAmount > 0, "No rewards to claim");
         // Restablecer las recompensas pendientes del usuario a 0.
         user.pendingRewards = 0;
+        uint256 feeAmount = ((pendingAmount * precision) * withdrawFeePercent) /
+            precision;
+        uint256 netAmount = (pendingAmount * precision) - feeAmount;
+
         // Emitir un evento de reclamo de recompensas.
-        emit RewardsClaimed(msg.sender, pendingAmount);
+        emit RewardsClaimed(msg.sender, netAmount);
         // Llamar a la función de acuñación (mint) en el contrato DappToken para transferir las recompensas al usuario.
-        dappToken.mint(msg.sender, pendingAmount);
+        dappToken.mint(msg.sender, netAmount);
+        if (feeAmount > 0 && feeReceiver != address(0)) {
+            dappToken.mint(feeReceiver, feeAmount);
+        }
     }
 
     /**
@@ -236,7 +250,7 @@ contract TokenFarm {
             REWARD_PER_BLOCK *
             blocksPassed) /
             totalStakingBalance /
-            1e18; // Usar 1e18 para evitar problemas de precisión con enteros
+            precision; // Usar 1e18 para evitar problemas de precisión con enteros
         // Actualizar las recompensas pendientes del usuario en pendingRewards.
         user.pendingRewards += reward;
     }

@@ -43,7 +43,7 @@ describe("TokenFarm", function () {
     );
 
     // Mint LP tokens to the second account
-    const mintAmount = hre.ethers.parseEther("100");
+    const mintAmount = 100;
     await lpToken.mint(secondAccount.address, mintAmount);
 
     // Check the balance of the second account
@@ -60,7 +60,7 @@ describe("TokenFarm", function () {
     );
 
     // Mint LP tokens to the second account.
-    const mintAmount = hre.ethers.parseEther("100");
+    const mintAmount = 100;
     await lpToken.mint(secondAccount.address, mintAmount);
 
     // Approve the TokenFarm contract to spend LP tokens on behalf of the second account.
@@ -77,8 +77,8 @@ describe("TokenFarm", function () {
       await loadFixture(deployDappTokenFarmFixture);
 
     // Mint LP tokens to the second account.
-    const mintAmount = hre.ethers.parseEther("1000");
-    const spendAmount = hre.ethers.parseEther("100");
+    const mintAmount = 1000;
+    const spendAmount = 100;
     await lpToken.mint(secondAccount.address, mintAmount);
     await lpToken.mint(thirdAccount.address, mintAmount);
 
@@ -108,8 +108,8 @@ describe("TokenFarm", function () {
       await loadFixture(deployDappTokenFarmFixture);
 
     // Mint LP tokens to the second account.
-    const mintAmount = hre.ethers.parseEther("1000");
-    const spendAmount = hre.ethers.parseEther("100");
+    const mintAmount = 1000;
+    const spendAmount = 100;
     await lpToken.mint(secondAccount.address, mintAmount);
     await lpToken.mint(thirdAccount.address, mintAmount);
 
@@ -130,21 +130,34 @@ describe("TokenFarm", function () {
     await tokenFarm.distributeRewardsAll();
     // Claim rewards for the second account.
     const stakerInfo = await tokenFarm.stakersInfo(secondAccount.address);
+    const cleanStakerPendingRewards = ethers.parseEther(
+      stakerInfo[2].toString()
+    );
+    //Calculate the fee amount (2% of pending rewards)
+    const feeAmount = (cleanStakerPendingRewards * 2n) / 100n;
+    const netAmount = cleanStakerPendingRewards - feeAmount;
+
     await expect(tokenFarm.connect(secondAccount).claimRewards())
       .to.emit(tokenFarm, "RewardsClaimed")
       .withArgs(
         secondAccount.address,
-        stakerInfo[2] // The amount of Rewards claimed
+        netAmount // The amount of Rewards claimed
       );
   });
   //Stakers can withdraw their LP tokens from the TokenFarm contract and claim rewards.
   it("Should allow stakers to withdraw their LP tokens and claim rewards", async function () {
-    const { tokenFarm, lpToken, secondAccount, thirdAccount } =
-      await loadFixture(deployDappTokenFarmFixture);
+    const {
+      tokenFarm,
+      owner,
+      lpToken,
+      secondAccount,
+      dappToken,
+      thirdAccount,
+    } = await loadFixture(deployDappTokenFarmFixture);
 
     // Mint LP tokens to the second account.
-    const mintAmount = hre.ethers.parseEther("1000");
-    const spendAmount = hre.ethers.parseEther("100");
+    const mintAmount = 1000;
+    const spendAmount = 100;
     await lpToken.mint(secondAccount.address, mintAmount);
     await lpToken.mint(thirdAccount.address, mintAmount);
 
@@ -165,9 +178,30 @@ describe("TokenFarm", function () {
     // Distribute rewards to all stakers.
     await tokenFarm.distributeRewardsAll();
 
+    //Check the balance on the DappToken contract for the second account Before withdrawing
+    /*
+    const stakerBalanceBefore = await dappToken.balanceOf(
+      secondAccount.address
+    );
+    console.log(
+      `Staker DappToken Balance Before: ${Number(stakerBalanceBefore)}`
+    ); */
+
     // Check the balance of the second account Before withdrawing
     const stakerInfo = await tokenFarm.stakersInfo(secondAccount.address);
-    //console.log(`User balance before withdraw: ${stakerInfo[0]}`);
+    //console.log(`Staker info: ${stakerInfo}`);
+    const cleanStakerPendingRewards = ethers.parseEther(
+      stakerInfo[2].toString()
+    );
+    //Calculate the fee amount (2% of pending rewards)
+    const feeAmount = (cleanStakerPendingRewards * 2n) / 100n;
+    /* console.log(`Fee amount to the owner: ${Number(feeAmount)}`);
+    const ownerBalanceBefore = await dappToken.balanceOf(owner);
+    console.log(
+      `Owner DappToken Balance Before: ${Number(ownerBalanceBefore)}`
+    ); */
+    //Calculate the net amount after fee deduction
+    const netAmount = cleanStakerPendingRewards - feeAmount;
 
     // Withdraw LP tokens from the TokenFarm contract.
     await expect(tokenFarm.connect(secondAccount).withdraw())
@@ -178,24 +212,31 @@ describe("TokenFarm", function () {
       .to.emit(tokenFarm, "RewardsClaimed")
       .withArgs(
         secondAccount.address,
-        stakerInfo[2] // The amount of DappTokens claimed
+        netAmount // The amount of DappTokens claimed
       );
+    /* const stakerInfoAfter = await tokenFarm.stakersInfo(secondAccount.address);
+    console.log(`Staker info after claimed rewards: ${stakerInfoAfter}`);
+    const stakerBalanceAfter = await dappToken.balanceOf(secondAccount.address);
+    console.log(`StakerDappBalance: ${Number(stakerBalanceAfter)}`);
+    //Check the balance of the owner after the fee is transferred
+    const ownerBalanceAfter = await dappToken.balanceOf(owner);
+    console.log(`Owner DappToken Balance After: ${Number(ownerBalanceAfter)}`); */
   });
   //Bonus 4: Rango minimo y maximo de recompensa por bloque.
   it("should allow owner to update rewardPerBlock within range", async () => {
-  const { tokenFarm, owner } = await loadFixture(deployDappTokenFarmFixture);
+    const { tokenFarm, owner } = await loadFixture(deployDappTokenFarmFixture);
 
-  const newReward = ethers.parseEther("2"); // 2 tokens por bloque
-  await tokenFarm.connect(owner).setRewardPerBlock(newReward);
+    const newReward = ethers.parseEther("2"); // 2 tokens por bloque
+    await tokenFarm.connect(owner).setRewardPerBlock(newReward);
 
-  expect(await tokenFarm.REWARD_PER_BLOCK()).to.equal(newReward);
-});
+    expect(await tokenFarm.REWARD_PER_BLOCK()).to.equal(newReward);
+  });
+  it("should revert if rewardPerBlock is set below minimum", async () => {
+    const { tokenFarm, owner } = await loadFixture(deployDappTokenFarmFixture);
 
-it("should revert if rewardPerBlock is set below minimum", async () => {
-  const { tokenFarm, owner } = await loadFixture(deployDappTokenFarmFixture);
-
-  const tooLow = ethers.parseEther("0.05");
-  await expect(tokenFarm.connect(owner).setRewardPerBlock(tooLow)).to.be.revertedWith("Below minimum reward");
-});
-
+    const tooLow = ethers.parseEther("0.05");
+    await expect(
+      tokenFarm.connect(owner).setRewardPerBlock(tooLow)
+    ).to.be.revertedWith("Below minimum reward");
+  });
 });
