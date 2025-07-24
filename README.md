@@ -1,8 +1,8 @@
 # DappToken - Proyecto final del Módulo 5 de ETH-Kipu
 
- Para poder correr el proyecto localmente asegurate de tener declarada con  *npx hardhat vars set "nombre de las variables"* la siguiente variable: 
+ Para poder correr el proyecto localmente asegurate de tener declarada con  *npx hardhat vars set "nombre de la variable"* la siguiente variable: 
 
- - DAPP_TOKEN_OWNER
+ - DAPP_TOKEN_OWNER (como es local host se debe hacer con la primer address del nodo de hardhat)
 
 ### Pasos para compilar el proyecto:
 
